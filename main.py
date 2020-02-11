@@ -60,19 +60,42 @@ class MainWindow(QMainWindow, Ui_Window):
 
         if dlg.exec_():
             filenames = dlg.selectedFiles()
+
+            start_date = ''
+            end_date = ''
             stocks_names = []
-            stocks_data = []
+            tmp_data = []
+            data = []
+
             for filename in filenames:
-                stock = filename[filename.rfind('/')+1: -4]
-                stocks_names.append(stock)
+                name = filename[filename.rfind('/')+1: -4]
+                stocks_names.append(name)
 
-                df = pd.read_csv(filename)
-                if df.size >= 33000:
-                    df = df.rename(columns={'Adj Close': stock})
-                    stocks_data.append(df[['Date', stock]])
+                df = pd.read_csv('./stocks/' + name + '.CSV', header=None, names=['Date', name])
+                df['Date']= pd.to_datetime(df['Date'])
+                df = df.groupby('Date').sum()
+                start = df.first_valid_index()
+                end = df.last_valid_index()
+                if start_date == '' or start < start_date:
+                    start_date = start
+                if end_date == '' or end > end_date:
+                    end_date = end
+                tmp_data.append(df)
 
-            self.df_stocks = reduce(lambda left,right: pd.merge(left, right, on='Date'), stocks_data)
-            # print(self.df_stocks)
+            idx = pd.date_range(start_date, end_date)
+
+            for d in tmp_data:
+                d = d.reindex(idx, fill_value=0)
+                d['Date'] = d.index
+                data.append(d)
+
+            df_final = reduce(lambda left,right: pd.merge(left, right, on='Date'), data)
+            cols = df_final.columns.tolist()
+            cols.remove('Date')
+            cols.insert(0, 'Date')
+            df_final = df_final[cols]
+
+            self.df_stocks = df_final
             self.set_stocks(stocks_names)
             self.set_select_box(len(stocks_names))
 
@@ -90,15 +113,17 @@ class MainWindow(QMainWindow, Ui_Window):
         items.insert(0, 'All')
         self.select_box.addItems(items)
 
-    def generate_model(model_name, config):
-        pass
+    # def generate_model(model_name, config):
+    #     pass
 
-    def generate_selector(number, target):
+    def generate_selector(number, ranking):
         pass
 
     def play_window(self):
         data = self.get_input_data()
+        self.generate_selector(data['select'], data['ranking'])
         print(data)
+        print(self.df_stocks)
 
     def get_checked_items(self):
         checked_items = []
