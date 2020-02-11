@@ -1,0 +1,6 @@
+__pycache__/
+env/
+stocks/
+template.ui
+test.py
+.DS_Store
