@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'template_v2.ui'
+# Form implementation generated from reading ui file 'template.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #
@@ -307,14 +307,14 @@ class Ui_Window(object):
         self.select_box.setObjectName("select_box")
         self.select_box.addItem("")
         self.gridLayout_4.addWidget(self.select_box, 0, 1, 1, 2)
-        self.ranking_box = QtWidgets.QComboBox(self.gridLayoutWidget_4)
-        self.ranking_box.setObjectName("ranking_box")
-        self.ranking_box.addItem("")
-        self.ranking_box.addItem("")
-        self.ranking_box.addItem("")
-        self.ranking_box.addItem("")
-        self.ranking_box.addItem("")
-        self.gridLayout_4.addWidget(self.ranking_box, 0, 3, 1, 1)
+        self.target_box = QtWidgets.QComboBox(self.gridLayoutWidget_4)
+        self.target_box.setObjectName("target_box")
+        self.target_box.addItem("")
+        self.target_box.addItem("")
+        self.target_box.addItem("")
+        self.target_box.addItem("")
+        self.target_box.addItem("")
+        self.gridLayout_4.addWidget(self.target_box, 0, 3, 1, 1)
         self.gridLayout.addLayout(self.gridLayout_4, 0, 1, 1, 1)
         self.gridLayout_5.addLayout(self.gridLayout, 1, 1, 1, 1)
         self.scrollArea = QtWidgets.QScrollArea(self.gridLayoutWidget_4)
@@ -432,8 +432,8 @@ class Ui_Window(object):
         self.model_label.setText(_translate("Window", "Model:"))
         self.config_button.setText(_translate("Window", "Congfig"))
         self.select_box.setItemText(0, _translate("Window", "All"))
-        self.ranking_box.setItemText(0, _translate("Window", "Equity"))
-        self.ranking_box.setItemText(1, _translate("Window", "MDD"))
-        self.ranking_box.setItemText(2, _translate("Window", "Equity / MDD"))
-        self.ranking_box.setItemText(3, _translate("Window", "CAGR"))
-        self.ranking_box.setItemText(4, _translate("Window", "MAR"))
+        self.target_box.setItemText(0, _translate("Window", "Equity"))
+        self.target_box.setItemText(1, _translate("Window", "MDD"))
+        self.target_box.setItemText(2, _translate("Window", "Equity / MDD"))
+        self.target_box.setItemText(3, _translate("Window", "CAGR"))
+        self.target_box.setItemText(4, _translate("Window", "MAR"))
