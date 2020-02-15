@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 # import CLA
 # import HRP
+from Selector import Selector
 from functools import reduce
 from template import Ui_Window
 from PyQt5 import QtCore, QtWidgets
@@ -42,17 +43,17 @@ class MainWindow(QMainWindow, Ui_Window):
         self.import_data_button.clicked.connect(self.get_file)
         self.assets_text.installEventFilter(self)
         self.stocks_listView.installEventFilter(self)
-        self.select_box.currentTextChanged.connect(self.set_ranking_box)
+        self.select_box.currentTextChanged.connect(self.set_target_box)
         # self.config_button
         # self.clear_button
-        self.play_button.clicked.connect(self.play_window)
+        self.play_button.clicked.connect(self.play)
 
-    def set_ranking_box(self):
+    def set_target_box(self):
         select = self.select_box.currentText()
         if select == 'All':
-            self.ranking_box.setEnabled(False)
+            self.target_box.setEnabled(False)
         else:
-            self.ranking_box.setEnabled(True)
+            self.target_box.setEnabled(True)
 
     def get_file(self):
         dlg = QFileDialog()
@@ -61,43 +62,60 @@ class MainWindow(QMainWindow, Ui_Window):
         if dlg.exec_():
             filenames = dlg.selectedFiles()
 
-            start_date = ''
-            end_date = ''
             stocks_names = []
-            tmp_data = []
-            data = []
-
+            stocks_data = []
             for filename in filenames:
-                name = filename[filename.rfind('/')+1: -4]
-                stocks_names.append(name)
+                stock = filename[filename.rfind('/')+1: -4]
 
-                df = pd.read_csv('./stocks/' + name + '.CSV', header=None, names=['Date', name])
-                df['Date']= pd.to_datetime(df['Date'])
-                df = df.groupby('Date').sum()
-                start = df.first_valid_index()
-                end = df.last_valid_index()
-                if start_date == '' or start < start_date:
-                    start_date = start
-                if end_date == '' or end > end_date:
-                    end_date = end
-                tmp_data.append(df)
+                df = pd.read_csv(filename)
+                if df.size >= 33000:
+                    stocks_names.append(stock)
+                    df = df.rename(columns={'Adj Close': stock})
+                    stocks_data.append(df[['Date', stock]])
 
-            idx = pd.date_range(start_date, end_date)
 
-            for d in tmp_data:
-                d = d.reindex(idx, fill_value=0)
-                d['Date'] = d.index
-                data.append(d)
-
-            df_final = reduce(lambda left,right: pd.merge(left, right, on='Date'), data)
-            cols = df_final.columns.tolist()
-            cols.remove('Date')
-            cols.insert(0, 'Date')
-            df_final = df_final[cols]
-
-            self.df_stocks = df_final
+            self.df_stocks = reduce(lambda left,right: pd.merge(left, right, on='Date'), stocks_data)
+            # print(self.df_stocks)
             self.set_stocks(stocks_names)
             self.set_select_box(len(stocks_names))
+
+            # start_date = ''
+            # end_date = ''
+            # stocks_names = []
+            # tmp_data = []
+            # data = []
+
+            # for filename in filenames:
+            #     name = filename[filename.rfind('/')+1: -4]
+            #     stocks_names.append(name)
+
+            #     df = pd.read_csv('./stocks/' + name + '.CSV', header=None, names=['Date', name])
+            #     df['Date']= pd.to_datetime(df['Date'])
+            #     df = df.groupby('Date').sum()
+            #     start = df.first_valid_index()
+            #     end = df.last_valid_index()
+            #     if start_date == '' or start < start_date:
+            #         start_date = start
+            #     if end_date == '' or end > end_date:
+            #         end_date = end
+            #     tmp_data.append(df)
+
+            # idx = pd.date_range(start_date, end_date)
+
+            # for d in tmp_data:
+            #     d = d.reindex(idx, fill_value=0)
+            #     d['Date'] = d.index
+            #     data.append(d)
+
+            # df_final = reduce(lambda left,right: pd.merge(left, right, on='Date'), data)
+            # cols = df_final.columns.tolist()
+            # cols.remove('Date')
+            # cols.insert(0, 'Date')
+            # df_final = df_final[cols]
+
+            # self.df_stocks = df_final
+            # self.set_stocks(stocks_names)
+            # self.set_select_box(len(stocks_names))
 
     def set_stocks(self, stocks_names):
         self.stocks_listView.clear()
@@ -113,17 +131,19 @@ class MainWindow(QMainWindow, Ui_Window):
         items.insert(0, 'All')
         self.select_box.addItems(items)
 
-    # def generate_model(model_name, config):
-    #     pass
-
-    def generate_selector(number, ranking):
+    def generate_model(self, model_name, config=None):
         pass
 
-    def play_window(self):
+    def generate_selector(self, number, ranking):
+        self.selector = Selector(number, ranking)
+
+        pass
+
+    def play(self):
         data = self.get_input_data()
-        self.generate_selector(data['select'], data['ranking'])
-        print(data)
-        print(self.df_stocks)
+        self.generate_selector(data['select'], data['target'])
+        self.generate_model(data['model'])
+        # print(self.selector)
 
     def get_checked_items(self):
         checked_items = []
@@ -143,7 +163,7 @@ class MainWindow(QMainWindow, Ui_Window):
 
         data['assets'] = self.assets_text.text()
         data['select'] = self.select_box.currentText()
-        data['ranking'] = self.ranking_box.currentText()
+        data['target'] = self.target_box.currentText()
         data['model'] = self.model_box.currentText()
 
         # data['config']
