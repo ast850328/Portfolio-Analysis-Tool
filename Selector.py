@@ -15,7 +15,7 @@ class Selector:
         else:
             df_selected = df_result.nsmallest(self.number, self.target)
         selected_columns = df_selected.index.tolist()
-        return selected_columns
+        return selected_columns, df_selected
 
     def _cal_performance(self, df):
         # Equity, MDD, Equity/MDD, [MAR, CAGR]
