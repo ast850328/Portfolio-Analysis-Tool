@@ -1,16 +1,13 @@
 import math
-import matplotlib.pyplot as mpl
+# import matplotlib.pyplot as mpl
 import scipy.cluster.hierarchy as sch, random, numpy as np, pandas as pd
 
 class HRP:
 
-    def __init__(self, df, cluster_method, order_method, weight_method):
-        self.df = df
-        self.df_pct = df_pct
-
-        self.cluster_method = cluster_method
-        self.order_method = order_method
-        self.weight_method = weight_method
+    def __init__(self, config):
+        self.cluster_method = config['cluster_method']
+        self.order_method = config['order_method']
+        self.weight_method = config['weight_method']
         self.weight_dict = {}
 
     def correl_dist(self, corr):
@@ -128,11 +125,10 @@ class HRP:
             self.bisection(leaves_list, cov)
         return
 
-    def get_weight_dict(self):
-        return self.weight_dict
-
-    def run(self):
-        x = self.df
+    def get_weight(self, df):
+        df = df.pct_change()
+        df = df.dropna()
+        x = df
         cov, corr = x.cov(), x.corr()
 
         # cluster
@@ -141,4 +137,4 @@ class HRP:
 
         # weighting
         self.alloc_weight(link, cov)
-        print('Done!')
+        return self.weight_dict
