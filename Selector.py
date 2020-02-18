@@ -9,6 +9,10 @@ class Selector:
             self.biggest = True
 
     def select(self, df):
+        if self.number == 'All':
+            selected_columns = df.columns.tolist()
+            selected_columns.remove('Date')
+            return selected_columns, None
         df_result = self._cal_performance(df)
         if self.biggest:
             df_selected = df_result.nlargest(self.number, self.target)
