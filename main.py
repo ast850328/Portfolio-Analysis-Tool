@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 from CLA import CLA
 from HRP import HRP
+from Optimal_F import Optimal_F
 from Selector import Selector
 from functools import reduce
 from template import Ui_MainWindow
@@ -98,6 +99,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             model = HRP(config)
         elif model_name == 'CLA':
             model = CLA()
+        elif model_name == 'Optimal F':
+            model = Optimal_F()
         elif model_name == 'Equal':
             pass
         return model
