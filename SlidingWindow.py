@@ -1,8 +1,6 @@
 from Window import Window
 class SlidingWindow:
-    def __init__(self, t1, t2, df, assets, selector, model):
-        self.t1 = t1
-        self.t2 = t2
+    def __init__(self, df, assets, selector, model):
         self.df = df
         self.assets = assets
         self.selector = selector
@@ -27,31 +25,27 @@ class SlidingWindow:
         MAR = CAGR / max_MDD
         return total_equity, max_MDD, CAGR, MAR
 
-    def play(self):
+    def play(self, t1, t2):
         # 20 days a month
         t1_start = 0
         length = len(self.df.index)
-        start = t1_start + self.t1 * 20
+        start = t1_start + t1 * 20
         end = 0
         data = {}
 
         while t1_start < length:
 
-            t1_end = t1_start + self.t1 * 20
+            t1_end = t1_start + t1 * 20
             t2_start = t1_end
-            t2_end = t2_start + self.t2 * 20
-            # print(t1_start, t1_end)
-            # print(t2_start, t2_end)
+            t2_end = t2_start + t2 * 20
             if t2_end >= length:
                 break
             df_t1 = self.df.iloc[t1_start: t1_end]
             df_t2 = self.df.iloc[t2_start: t2_end]
             window = Window(df_t1, df_t2, self.selector, self.model, self.assets)
             df_result, date = window.play()
-            # print(date)
-            # print(df_result)
             data[date] = df_result
             end = t2_end
-            t1_start = t1_start + self.t2 * 20
+            t1_start = t1_start + t2 * 20
         total_equity, max_MDD, CAGR, MAR = self._cal_performance(data, start, end)
         return total_equity, max_MDD, CAGR, MAR, data
