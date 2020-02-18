@@ -154,13 +154,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         data['t1_end'] = self.t1_end_text.text()
         data['t2_start'] = self.t2_start_text.text()
         data['t2_end'] = self.t2_end_text.text()
+        data['assets'] = self.assets_text.text().replace(',', '')
 
-        data['assets'] = self.assets_text.text()
-        data['select'] = self.select_box.currentText()
+        data['number'] = self.select_box.currentText()
         data['target'] = self.target_box.currentText()
-        data['model'] = self.model_box.currentText()
 
-        # data['config']
+        data['model_name'] = self.model_box.currentText()
+        data['config'] = None ## Todo
 
         return data
 
