@@ -2,12 +2,10 @@ import math
 import pandas as pd
 class Window:
 
-    def __init__(self, df_t1, df_t2, selector, model, assets):
-        self.df_t1 = df_t1
-        self.df_t2 = df_t2
+    def __init__(self, assets, selector, model):
+        self.assets = assets
         self.selector = selector
         self.model = model
-        self.assets = assets
 
     def _cal_performance(self, df, weight_dict):
 
@@ -42,12 +40,12 @@ class Window:
 
         return df_result.T, date
 
-    def play(self):
-        selected_stocks, df_selected = self.selector.select(self.df_t1)
-        df_t1 = self.df_t1.loc[:, selected_stocks]
+    def play(self, df_t1, df_t2):
+        selected_stocks, df_selected = self.selector.select(df_t1)
+        df_t1 = df_t1.loc[:, selected_stocks]
         weight_dict = self.model.get_weight(df_t1)
         selected_stocks.append('Date')
         cols = selected_stocks
-        df_t2 = self.df_t2.loc[:, cols]
+        df_t2 = df_t2.loc[:, cols]
         df_result, date = self._cal_performance(df_t2, weight_dict)
         return df_result, date

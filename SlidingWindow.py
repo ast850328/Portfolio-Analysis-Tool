@@ -32,7 +32,7 @@ class SlidingWindow:
         start = t1_start + t1 * 20
         end = 0
         data = {}
-
+        window = Window(self.assets, self.selector, self.model)
         while t1_start < length:
 
             t1_end = t1_start + t1 * 20
@@ -42,8 +42,7 @@ class SlidingWindow:
                 break
             df_t1 = self.df.iloc[t1_start: t1_end]
             df_t2 = self.df.iloc[t2_start: t2_end]
-            window = Window(df_t1, df_t2, self.selector, self.model, self.assets)
-            df_result, date = window.play()
+            df_result, date = window.play(df_t1, df_t2)
             data[date] = df_result
             end = t2_end
             t1_start = t1_start + t2 * 20
