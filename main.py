@@ -94,12 +94,18 @@ class MainWindow(QMainWindow, Ui_Window):
         self.select_box.addItems(items)
 
     def generate_model(self, model_name, config=None):
-        pass
+        model = None
+        if model_name == 'HRP':
+            model = HRP(config)
+        elif model_name == 'CLA':
+            model = CLA()
+        elif model_name == 'Equal':
+            pass
+        return model
 
-    def generate_selector(self, number, ranking):
-        self.selector = Selector(number, ranking)
-
-        pass
+    def generate_selector(self, number, target):
+        selector = Selector(number, target)
+        return selector
 
     def play(self):
         data = self.get_input_data()
