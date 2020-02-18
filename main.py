@@ -107,10 +107,37 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return selector
 
     def play(self):
+        self.result_table.setRowCount(0)
+        self.result_textBrowser.append('')
+        self.result_textBrowser.append('Running...')
+
         data = self.get_input_data()
-        self.generate_selector(data['select'], data['target'])
-        self.generate_model(data['model'])
-        # print(self.selector)
+        selector = self.generate_selector(data['number'], data['target'])
+        model = self.generate_model(data['model_name'], data['config'])
+        t1_start = int(data['t1_start'])
+        t1_end = int(data['t1_end'])
+        t2_start = int(data['t2_start'])
+        t2_end = int(data['t2_end'])
+        assets = int(data['assets'])
+        stocks_name = data['stocks_name']
+        df = self.df_stocks[['Date'] + stocks_name]
+        sliding_window = SlidingWindow(df, assets, selector, model)
+        for i in range(t1_start, t1_end+1, 1):
+            for j in range(t2_start, t2_end+1, 1):
+                total_equity, max_MDD, CAGR, MAR, data = sliding_window.play(i, j)
+                print(total_equity, max_MDD, CAGR, MAR)
+                row_position = self.result_table.rowCount()
+                self.result_table.insertRow(row_position)
+                self.result_table.setItem(row_position , 0, QTableWidgetItem(str(i)))
+                self.result_table.setItem(row_position , 1, QTableWidgetItem(str(j)))
+                self.result_table.setItem(row_position , 2, QTableWidgetItem(str(total_equity)))
+                self.result_table.setItem(row_position , 3, QTableWidgetItem(str(max_MDD)))
+                self.result_table.setItem(row_position , 4, QTableWidgetItem(str(total_equity/max_MDD)))
+                self.result_table.setItem(row_position , 5, QTableWidgetItem(str(CAGR)))
+                self.result_table.setItem(row_position , 6, QTableWidgetItem(str(MAR)))
+                self.result_table.scrollToBottom()
+                print('==============================')
+        self.result_textBrowser.append('Done.')
 
     def get_checked_items(self):
         checked_items = []
