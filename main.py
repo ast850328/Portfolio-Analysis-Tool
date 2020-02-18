@@ -1,19 +1,18 @@
 import sys
 import pandas as pd
-# import CLA
-# import HRP
+from CLA import CLA
+from HRP import HRP
 from Selector import Selector
 from functools import reduce
-from template import Ui_Window
+from template import Ui_MainWindow
+from SlidingWindow import SlidingWindow
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QWidget
+from PyQt5.QtWidgets import QMainWindow, QApplication, QFileDialog, QWidget, QTableWidgetItem
 
-
-class MainWindow(QMainWindow, Ui_Window):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
         self.df_stocks = None
-
         self.setupUi(self)
         self.bind_init_event()
         self.result_table.horizontalHeader().setSectionResizeMode(3)
