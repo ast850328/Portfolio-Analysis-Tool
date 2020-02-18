@@ -22,7 +22,7 @@ class SlidingWindow:
 
         CAGR = pow(final_assets/original_assets, 1.0/years) - 1
         MDD = max_MDD / original_assets
-        MAR = CAGR / max_MDD
+        MAR = CAGR / MDD
         return total_equity, max_MDD, CAGR, MAR
 
     def play(self, t1, t2):
