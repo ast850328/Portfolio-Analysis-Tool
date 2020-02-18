@@ -16,6 +16,7 @@ class MainWindow(QMainWindow, Ui_Window):
 
         self.setupUi(self)
         self.bind_init_event()
+        self.result_table.horizontalHeader().setSectionResizeMode(3)
 
     def eventFilter(self, obj, event):
         # print(type(obj))
