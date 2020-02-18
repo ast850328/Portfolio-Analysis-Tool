@@ -76,47 +76,8 @@ class MainWindow(QMainWindow, Ui_Window):
 
 
             self.df_stocks = reduce(lambda left,right: pd.merge(left, right, on='Date'), stocks_data)
-            # print(self.df_stocks)
             self.set_stocks(stocks_names)
             self.set_select_box(len(stocks_names))
-
-            # start_date = ''
-            # end_date = ''
-            # stocks_names = []
-            # tmp_data = []
-            # data = []
-
-            # for filename in filenames:
-            #     name = filename[filename.rfind('/')+1: -4]
-            #     stocks_names.append(name)
-
-            #     df = pd.read_csv('./stocks/' + name + '.CSV', header=None, names=['Date', name])
-            #     df['Date']= pd.to_datetime(df['Date'])
-            #     df = df.groupby('Date').sum()
-            #     start = df.first_valid_index()
-            #     end = df.last_valid_index()
-            #     if start_date == '' or start < start_date:
-            #         start_date = start
-            #     if end_date == '' or end > end_date:
-            #         end_date = end
-            #     tmp_data.append(df)
-
-            # idx = pd.date_range(start_date, end_date)
-
-            # for d in tmp_data:
-            #     d = d.reindex(idx, fill_value=0)
-            #     d['Date'] = d.index
-            #     data.append(d)
-
-            # df_final = reduce(lambda left,right: pd.merge(left, right, on='Date'), data)
-            # cols = df_final.columns.tolist()
-            # cols.remove('Date')
-            # cols.insert(0, 'Date')
-            # df_final = df_final[cols]
-
-            # self.df_stocks = df_final
-            # self.set_stocks(stocks_names)
-            # self.set_select_box(len(stocks_names))
 
     def set_stocks(self, stocks_names):
         self.stocks_listView.clear()
