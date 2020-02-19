@@ -21,7 +21,7 @@ class Optimal_F:
         TWRs = 0
         i = 0
         for stock in stocks:
-            HPRs = (1 - weights[i] * (df[stock] / df[stock]))
+            HPRs = (1 - weights[i] * (df[stock] / WCS[stock]))
             TWRs += np.prod(HPRs)
             i += 1
         return -TWRs
