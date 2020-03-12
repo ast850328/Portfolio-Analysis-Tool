@@ -15,8 +15,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(parent)
         self.df_stocks = None
         self.setupUi(self)
+        self.clear_ui()
         self.bind_init_event()
-        self.result_table.horizontalHeader().setSectionResizeMode(3)
+        # self.result_table.horizontalHeader().setSectionResizeMode(3)
+
+    def clear_ui(self):
+        self.investments_table.clear()
+        self.investments_table.setRowCount(0)
+        self.result_table.clear()
+        self.result_table.setRowCount(0)
+        self.result_textBrowser.clearHistory()
+        self.assets_text.clear()
+        self.rolling_month_text.clear()
+        self.t1_start_text.clear()
+        self.t1_end_text.clear()
+        self.t2_start_text.clear()
+        self.t2_end_text.clear()
+
+    def bind_init_event(self):
+        # import data button
+        # self.import_data_button.clicked.connect(self.get_file)
+        self.assets_text.installEventFilter(self)
+        self.rolling_checkBox.stateChanged.connect(self.set_rolling_months)
+        self.import_investments_button.clicked.connect(self.import_investments)
+        # self.stocks_listView.installEventFilter(self)
+        # self.select_box.currentTextChanged.connect(self.set_target_box)
+        # self.config_button
+        # self.clear_button
+        # self.play_button.clicked.connect(self.play)
 
     def eventFilter(self, obj, event):
         # print(type(obj))
@@ -25,10 +51,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 text = self.assets_text.text()
                 if text is '':
                     return False
-                text = text.replace(',', '')
-                text = '{:,}'.format(int(text))
-                self.assets_text.setText(text)
-                return False
+                else:
+                    dollarText = self.format_dollar(text)
+                    self.assets_text.setText(dollarText)
+                    return False
             else:
                 return False
         elif obj == self.stocks_listView:
@@ -39,15 +65,81 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             return QWidget.eventFilter(self, obj, event)
 
-    def bind_init_event(self):
-        # import data button
-        self.import_data_button.clicked.connect(self.get_file)
-        self.assets_text.installEventFilter(self)
-        self.stocks_listView.installEventFilter(self)
-        self.select_box.currentTextChanged.connect(self.set_target_box)
-        # self.config_button
-        # self.clear_button
-        self.play_button.clicked.connect(self.play)
+    def format_dollar(self, text):
+        text = text.replace(',', '')
+        dollarText = '{:,}'.format(int(text))
+        return dollarText
+
+    def set_rolling_months(self):
+        if self.rolling_checkBox.checkState() == QtCore.Qt.Checked:
+            self.rolling_month_text.setReadOnly(False)
+        else:
+            self.rolling_month_text.setReadOnly(True)
+        pass
+
+    def import_investments(self):
+        files_path = self.get_files_path()
+        # get file
+        # self.read_files(self, files_path)
+        filenames = [path[path.rfind('/')+1: -4] for path in files_path]
+        self.set_investments_table(filenames)
+        pass
+
+    def get_files_path(self):
+        dlg = QFileDialog()
+        dlg.setFileMode(QFileDialog.ExistingFiles)
+
+        if dlg.exec_():
+            files_path = dlg.selectedFiles()
+            return files_path
+
+    def read_files(self, files_path):
+        for path in files_path:
+            stock = path[path.rfind('/')+1: -4]
+
+            df = pd.read_csv(path)
+            if df.size >= 33000:
+                stocks_names.append(stock)
+                df = df.rename(columns={'Adj Close': stock})
+                stocks_data.append(df[['Date', stock]])
+
+
+        self.df_stocks = reduce(lambda left,right: pd.merge(left, right, on='Date'), stocks_data)
+        pass
+
+    def set_investments_table(self, filenames):
+        self.investments_table.clear()
+        self.investments_table.setRowCount(0)
+        for name in filenames:
+            self.insert_investment_row(name)
+
+    def insert_investment_row(self, name):
+        _translate = QtCore.QCoreApplication.translate
+        row_position = self.investments_table.rowCount()
+        self.investments_table.insertRow(row_position)
+
+        self.investments_table.setItem(row_position, 0, QTableWidgetItem(name))
+
+        type_combo_box = QtWidgets.QComboBox()
+        type_combo_box_options = ['ETF', 'Stock', 'Futures']
+        for t in type_combo_box_options:
+                type_combo_box.addItem(t)
+        self.investments_table.setCellWidget(row_position, 1, type_combo_box)
+
+        price_per_point_text = QtWidgets.QLineEdit()
+        price_per_point_text.setPlaceholderText('1')
+        price_per_point_text.setAlignment(QtCore.Qt.AlignRight)
+        self.investments_table.setCellWidget(row_position, 2, price_per_point_text)
+
+        unit_combo_box = QtWidgets.QComboBox()
+        unit_combo_box_options = ['share', 'lot']
+        for t in unit_combo_box_options:
+                unit_combo_box.addItem(t)
+        self.investments_table.setCellWidget(row_position, 3, unit_combo_box)
+
+        import_price_button = QtWidgets.QPushButton()
+        import_price_button.setText(_translate("MainWindow", "Import Price"))
+        self.investments_table.setCellWidget(row_position, 4, import_price_button)
 
     def set_target_box(self):
         select = self.select_box.currentText()
@@ -65,17 +157,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
             stocks_names = []
             stocks_data = []
-            for filename in filenames:
-                stock = filename[filename.rfind('/')+1: -4]
 
-                df = pd.read_csv(filename)
-                if df.size >= 33000:
-                    stocks_names.append(stock)
-                    df = df.rename(columns={'Adj Close': stock})
-                    stocks_data.append(df[['Date', stock]])
-
-
-            self.df_stocks = reduce(lambda left,right: pd.merge(left, right, on='Date'), stocks_data)
             self.set_stocks(stocks_names)
             self.set_select_box(len(stocks_names))
 
