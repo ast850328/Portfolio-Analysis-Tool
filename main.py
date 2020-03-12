@@ -24,7 +24,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.investments_table.setRowCount(0)
         self.result_table.clear()
         self.result_table.setRowCount(0)
-        self.result_textBrowser.clearHistory()
+        self.result_textBrowser.clear()
         self.assets_text.clear()
         self.rolling_month_text.clear()
         self.t1_start_text.clear()
