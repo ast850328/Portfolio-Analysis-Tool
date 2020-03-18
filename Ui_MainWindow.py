@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'template.ui'
+# Form implementation generated from reading ui file 'mainWindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #
@@ -13,14 +13,14 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1319, 656)
+        MainWindow.resize(1415, 656)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_7 = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout_7.setObjectName("gridLayout_7")
         self.investments_table = QtWidgets.QTableWidget(self.centralwidget)
         self.investments_table.setObjectName("investments_table")
-        self.investments_table.setColumnCount(5)
+        self.investments_table.setColumnCount(6)
         self.investments_table.setRowCount(4)
         item = QtWidgets.QTableWidgetItem()
         self.investments_table.setVerticalHeaderItem(0, item)
@@ -40,6 +40,8 @@ class Ui_MainWindow(object):
         self.investments_table.setHorizontalHeaderItem(3, item)
         item = QtWidgets.QTableWidgetItem()
         self.investments_table.setHorizontalHeaderItem(4, item)
+        item = QtWidgets.QTableWidgetItem()
+        self.investments_table.setHorizontalHeaderItem(5, item)
         item = QtWidgets.QTableWidgetItem()
         item.setTextAlignment(QtCore.Qt.AlignCenter)
         item.setFlags(QtCore.Qt.ItemIsSelectable|QtCore.Qt.ItemIsDragEnabled|QtCore.Qt.ItemIsDropEnabled|QtCore.Qt.ItemIsUserCheckable|QtCore.Qt.ItemIsEnabled)
@@ -359,11 +361,14 @@ class Ui_MainWindow(object):
         self.selection_label.setObjectName("selection_label")
         self.selection_layout.addWidget(self.selection_label, 0, 0, 1, 2)
         self.basis_box = QtWidgets.QComboBox(self.centralwidget)
+        self.basis_box.setEnabled(False)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.basis_box.sizePolicy().hasHeightForWidth())
         self.basis_box.setSizePolicy(sizePolicy)
+        self.basis_box.setAcceptDrops(False)
+        self.basis_box.setDuplicatesEnabled(False)
         self.basis_box.setObjectName("basis_box")
         self.basis_box.addItem("")
         self.basis_box.addItem("")
@@ -454,8 +459,10 @@ class Ui_MainWindow(object):
         item = self.investments_table.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "Price per point"))
         item = self.investments_table.horizontalHeaderItem(3)
-        item.setText(_translate("MainWindow", "unit"))
+        item.setText(_translate("MainWindow", "Unit"))
         item = self.investments_table.horizontalHeaderItem(4)
+        item.setText(_translate("MainWindow", "Exchange rate"))
+        item = self.investments_table.horizontalHeaderItem(5)
         item.setText(_translate("MainWindow", "Price file"))
         __sortingEnabled = self.investments_table.isSortingEnabled()
         self.investments_table.setSortingEnabled(False)
@@ -493,11 +500,11 @@ class Ui_MainWindow(object):
         item = self.result_table.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "t2"))
         item = self.result_table.horizontalHeaderItem(2)
-        item.setText(_translate("MainWindow", "Equity"))
+        item.setText(_translate("MainWindow", "Profit"))
         item = self.result_table.horizontalHeaderItem(3)
         item.setText(_translate("MainWindow", "MDD"))
         item = self.result_table.horizontalHeaderItem(4)
-        item.setText(_translate("MainWindow", "Equity / MDD"))
+        item.setText(_translate("MainWindow", "Profit / MDD"))
         item = self.result_table.horizontalHeaderItem(5)
         item.setText(_translate("MainWindow", "CAGR"))
         item = self.result_table.horizontalHeaderItem(6)
@@ -531,9 +538,8 @@ class Ui_MainWindow(object):
 "</style></head><body style=\" font-family:\'Helvetica\'; font-size:13pt; font-weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Running...(example)</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Done.</span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best Equity(t1, t2): (5, 35)</span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best MDD(t1, t2): (6, 30)</span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best Equity / MDD(t1, t2): (5, 30)</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best Profit(t1, t2): (5, 35)</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best Profit / MDD(t1, t2): (5, 30)</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best CAGR(t1, t2): (5, 35)</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best MAR(t1, t2): (6, 30)</span></p></body></html>"))
         self.save_config_button.setText(_translate("MainWindow", "Save Config"))
@@ -559,8 +565,8 @@ class Ui_MainWindow(object):
         self.ranking_label.setText(_translate("MainWindow", "Ranking:"))
         self.basis_label.setText(_translate("MainWindow", "Basis:"))
         self.selection_label.setText(_translate("MainWindow", "Selection"))
-        self.basis_box.setItemText(0, _translate("MainWindow", "Equity"))
-        self.basis_box.setItemText(1, _translate("MainWindow", "Equity / MDD"))
+        self.basis_box.setItemText(0, _translate("MainWindow", "Profit"))
+        self.basis_box.setItemText(1, _translate("MainWindow", "Profit / MDD"))
         self.basis_box.setItemText(2, _translate("MainWindow", "CAGR"))
         self.basis_box.setItemText(3, _translate("MainWindow", "MAR"))
         self.ranking_box.setItemText(0, _translate("MainWindow", "All"))
