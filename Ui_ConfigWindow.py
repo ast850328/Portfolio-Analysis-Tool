@@ -112,4 +112,4 @@ class Ui_ConfigWindow(object):
         self.order_method_box.setItemText(1, _translate("ConfigWindow", "bisection"))
         self.risk_text.setPlaceholderText(_translate("ConfigWindow", "0"))
         self.order_method_label.setText(_translate("ConfigWindow", "Order Method:"))
-        self.model_label.setText(_translate("ConfigWindow", "CLA model"))
+        self.model_label.setText(_translate("ConfigWindow", "HRP model"))

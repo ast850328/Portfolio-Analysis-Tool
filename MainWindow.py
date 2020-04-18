@@ -1,5 +1,7 @@
 import pandas as pd
 from functools import reduce
+from os import listdir
+from os.path import isfile, join
 
 from CLA import CLA
 from HRP import HRP
@@ -122,33 +124,27 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.investments_table.setItem(row_position, 0, QTableWidgetItem(name))
 
         type_combo_box = QtWidgets.QComboBox()
-        type_combo_box_options = ['ETF', 'Stock', 'Futures']
+        type_combo_box_options = ['Stock', 'ETF', 'Future']
         for t in type_combo_box_options:
-                type_combo_box.addItem(t)
+            type_combo_box.addItem(t)
         self.investments_table.setCellWidget(row_position, 1, type_combo_box)
 
-        price_per_point_text = QtWidgets.QLineEdit()
-        price_per_point_text.setPlaceholderText('1')
-        price_per_point_text.setAlignment(QtCore.Qt.AlignRight)
-        self.investments_table.setCellWidget(row_position, 2, price_per_point_text)
+        ticker_symbol_combo_box = QtWidgets.QComboBox()
+        ticker_symbol_combo_box_options = self.get_ticker_symbols(type_combo_box_options[0])
+        for t in ticker_symbol_combo_box_options:
+            ticker_symbol_combo_box.addItem(t)
+        self.investments_table.setCellWidget(row_position, 2, ticker_symbol_combo_box)
 
         unit_combo_box = QtWidgets.QComboBox()
         unit_combo_box_options = ['share', 'lot']
         for t in unit_combo_box_options:
-                unit_combo_box.addItem(t)
+            unit_combo_box.addItem(t)
         self.investments_table.setCellWidget(row_position, 3, unit_combo_box)
 
-        exchange_rate_combo_box = QtWidgets.QComboBox()
-        exchange_rate_combo_box_options = ['America', 'Taiwan']
-        for t in exchange_rate_combo_box_options:
-                exchange_rate_combo_box.addItem(t)
-        self.investments_table.setCellWidget(row_position, 4, exchange_rate_combo_box)
-
-        import_price_button = QtWidgets.QPushButton()
-        import_price_button.setText(_translate("MainWindow", "Import Price"))
-        import_price_button.clicked.connect(self.import_price)
-        # import_price_button.installEventFilter(self)
-        self.investments_table.setCellWidget(row_position, 5, import_price_button)
+    def get_ticker_symbols(self, type):
+        path = './symbols/' + str(type)
+        files = [f[:-4] for f in listdir(path) if isfile(join(path, f)) and f[-3:] == 'csv']
+        return files
 
     def set_ranking_box(self, number):
         self.ranking_box.clear()
