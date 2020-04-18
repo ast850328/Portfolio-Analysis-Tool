@@ -1,51 +1,85 @@
 import math
 import pandas as pd
+import numpy as np
 class Window:
 
-    def __init__(self, assets, selector, model):
-        self.assets = assets
+    def __init__(self, config, selector, model):
+        self.config = config
         self.selector = selector
         self.model = model
+        self.weight_dict = {}
 
-    def _cal_performance(self, df, weight_dict):
+    def _get_lastest_K(self, date, df):
+        row = df[df['Date'] <= date].tail(1)
+        return row
 
-        stocks = weight_dict.keys()
-        data = {}
-        for stock in stocks:
-            df_stock = df.loc[:, [stock]]
+    def _cal_window_performance(self, data, t2_start_datetime, t2_end_datetime):
+        commodity = self.config['commodity']
+        # Equity, MDD, Equity/MDD
+        result_data = {}
+        for key in data:
+            assets = self.config['assets'] * self.weight_dict[key]
+            symbol = data[key]['symbol']
+            df_dailyProfit = data[key]['dailyProfit']
+            commodity_type = commodity[symbol]['type']
+            price_per_point = commodity[symbol]['pricePerPoint']
+            exchange = commodity[symbol]['exchange']
+            df_price = commodity[symbol]['priceData']
+            buy_date = df_dailyProfit.iloc[0].date
+            lastest_K = self._get_lastest_K(buy_date, df_price)
 
-            weight = weight_dict[stock]
-            assets = self.assets * weight
-            buy_price = df_stock.iloc[0].values[0]
-            sell_price = df_stock.iloc[-1].values[0]
-            shares = math.floor(assets / buy_price)
-            equity_change = sell_price - buy_price
-            equity = equity_change * shares
+            if commodity_type == 'Future':
+                # (資金 * 風險比率) / (ATR * 大點金額)
+                # risk 0.7%
+                volatility = df_dailyProfit.iloc[0].volatility
+                units = math.floor((assets * self.model.config['risk']) / (volatility * price_per_point))
+            else:
+                buy_price = lastest_K.Open
+                units = math.floor(assets / buy_price)
+
+            profit = df_dailyProfit['return'].sum() * units
+
             MDD = 0
-            peak = buy_price
-            for index, row in df_stock.iterrows():
-                price = row[stock]
-                if price >= peak:
-                    peak = price
-                DD = price - peak
-                if DD <= MDD:
+            peak = df_dailyProfit.iloc[0]['return']
+            for index, row in df_dailyProfit.iterrows():
+                if row['return'] >= peak:
+                    peak = row['return']
+                DD = peak - row['return']
+                if DD >= MDD:
                     MDD = DD
-            MDD = 0 - MDD
-            MDD = MDD * shares
-            equity_to_MDD = equity / MDD
-            data[stock] = [assets, weight, shares, equity_change, equity, MDD, equity_to_MDD]
+            MDD = MDD * units
 
-        df_result = pd.DataFrame(data=data, index=['Assets', 'Weight', 'Shares', 'Equity Change', 'Equity', 'MDD', 'Equity / MDD'])
-        date = df['Date'].iloc[-1]
+            profit_to_MDD = profit / MDD
 
-        return df_result.T, date
+            result_data[key] = [t2_start_datetime, t2_end_datetime, profit, MDD, profit_to_MDD, self.weight_dict[key]]
+        df_result = pd.DataFrame(data=result_data, index=['Start Date', 'End Date', 'Profit', 'MDD', 'Profit / MDD', 'Weight']).T
+        return df_result
 
-    def play(self, df_t1, df_t2):
-        selected_stocks, df_selected = self.selector.select(df_t1)
-        df_t1 = df_t1.loc[:, selected_stocks]
-        weight_dict = self.model.get_weight(df_t1)
-        selected_stocks.append('Date')
-        cols = selected_stocks
-        df_t2 = df_t2.loc[:, cols]
-        df_result, date = self._cal_performance(df_t2, weight_dict)
-        return df_result, date
+    def t1_play(self, t1_data, t1_start_datetime, t1_end_datetime):
+        # select investments
+        selected_investments = self.selector.select(t1_data, self.config['commodity'], self.config['assets'], t1_start_datetime, t1_end_datetime)
+
+        # prepare data to allocate weight
+        t1_end_datetime = t1_end_datetime - np.timedelta64(1, 'D')
+        idx = pd.bdate_range(start=t1_start_datetime, end=t1_end_datetime)
+        data = []
+        for name in selected_investments.keys():
+            investment = selected_investments[name]
+            symbol = investment['symbol']
+            df = investment['dailyProfit']
+            df.index = df.date
+            df = df.drop(columns=['volatility', 'date'])
+            df = df.reindex(idx, fill_value=0)
+            df = df.rename(columns={'return': name})
+            df = df / self.config['commodity'][symbol]['pricePerPoint']
+            data.append(df)
+        data = pd.concat(data, axis=1)
+
+        # allocate weight
+        self.weight_dict = self.model.get_weight(data)
+
+        return selected_investments
+
+    def t2_play(self, t2_data, t2_start_datetime, t2_end_datetime):
+        df_result = self._cal_window_performance(t2_data, t2_start_datetime, t2_end_datetime)
+        return df_result
