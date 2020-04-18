@@ -1,8 +1,12 @@
 __pycache__/
 env/
 stocks/
+symbols/
+dailyProfit/
 template.ui
 test.py
 .DS_Store
 configWindow.ui
 mainWindow.ui
+commodity.csv
+fileTesting.py
