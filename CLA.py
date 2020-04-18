@@ -3,11 +3,10 @@ import pandas as pd
 import math, random
 from scipy.optimize import minimize
 
-
 class CLA:
 
-    def __init__(self):
-        pass
+    def __init__(self, config):
+        self.config = config
 
     # Excpected Returns
     def calc_exp_returns(self, avg_returns, weights):
@@ -41,16 +40,14 @@ class CLA:
         return res
 
     def get_weight(self, df):
-        df = df.pct_change()
-        df = df.dropna()
-        stocks = df.columns.to_list()
+        names = df.columns.to_list()
 
         res = self.optimize(df)
         if res.success == True:
             weights = res.x
             weight_dict = {}
-            for weight, stock in zip(weights, stocks):
-                weight_dict[stock] = weight
+            for weight, name in zip(weights, names):
+                weight_dict[name] = weight
             return weight_dict
         else:
             print("optimize is not successful.")

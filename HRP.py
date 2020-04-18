@@ -5,6 +5,7 @@ import scipy.cluster.hierarchy as sch, random, numpy as np, pandas as pd
 class HRP:
 
     def __init__(self, config):
+        self.config = config
         self.cluster_method = config['cluster_method']
         self.order_method = config['order_method']
         self.weight_method = config['weight_method']
@@ -126,8 +127,6 @@ class HRP:
         return
 
     def get_weight(self, df):
-        df = df.pct_change()
-        df = df.dropna()
         x = df
         cov, corr = x.cov(), x.corr()
 
