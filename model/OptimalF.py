@@ -61,4 +61,8 @@ class OptimalF:
             return weight_dict
         else:
             print("optimize is not successful.")
-            return None
+            weight = 1.0 / len(names)
+            weight_dict = {}
+            for name in names:
+                weight_dict[name] = weight
+            return weight_dict
