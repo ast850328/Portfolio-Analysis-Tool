@@ -1,9 +1,10 @@
 import pandas as pd
 
-class EqualWeight:
+class EqualRisk:
 
-    def __init__(self):
-        pass
+    def __init__(self, config):
+        self.model_name = 'EqualRisk'
+        self.config = config
 
     def get_weight(self, df):
         names = df.columns.to_list()

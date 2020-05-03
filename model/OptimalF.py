@@ -2,28 +2,31 @@ import numpy as np
 import pandas as pd
 import math, random
 from scipy.optimize import minimize
+from sklearn.preprocessing import MinMaxScaler
 
-
-class Optimal_F:
+class OptimalF:
 
     def __init__(self, config):
+        self.model_name = 'OptimalF'
         self.config = config
-        pass
 
     # Excpected Returns
     def calc_exp_returns(self, avg_returns, weights):
         exp_returns = avg_returns.dot(weights.T)
         return exp_returns
 
-    # Variance-covariance matrix
     def TWR(self, df, weights):
         names = df.columns.to_list()
         WCS = df.min()
+        # print(WCS)
         TWRs = 1
         i = 0
         for name in names:
+            if WCS[name] >= 0:
+                i += 1
+                continue
             HPRs = 1 + (weights[i] * (- df[name] / WCS[name]))
-            TWRs = TWRs * np.prod(HPRs)
+            TWRs = TWRs + np.prod(HPRs)
             i += 1
         return -TWRs
 
@@ -46,6 +49,8 @@ class Optimal_F:
 
     def get_weight(self, df):
         names = df.columns.to_list()
+        scaler = MinMaxScaler()
+        df[names] = scaler.fit_transform(df)
 
         res = self.optimize(df)
         if res.success == True:

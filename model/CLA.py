@@ -2,10 +2,12 @@ import numpy as np
 import pandas as pd
 import math, random
 from scipy.optimize import minimize
+from sklearn.preprocessing import MinMaxScaler
 
 class CLA:
 
     def __init__(self, config):
+        self.model_name = 'CLA'
         self.config = config
 
     # Excpected Returns
@@ -41,7 +43,8 @@ class CLA:
 
     def get_weight(self, df):
         names = df.columns.to_list()
-
+        scaler = MinMaxScaler()
+        df[names] = scaler.fit_transform(df)
         res = self.optimize(df)
         if res.success == True:
             weights = res.x

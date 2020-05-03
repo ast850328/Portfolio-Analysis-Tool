@@ -1,10 +1,12 @@
 import math
 # import matplotlib.pyplot as mpl
 import scipy.cluster.hierarchy as sch, random, numpy as np, pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 
 class HRP:
 
     def __init__(self, config):
+        self.model_name = 'HRP'
         self.config = config
         self.cluster_method = config['cluster_method']
         self.order_method = config['order_method']
@@ -28,6 +30,8 @@ class HRP:
         cov_ = cov.loc[cItems,cItems] # matrix slice
         w_ = self.get_IVP(cov_).reshape(-1, 1)
         cVar = np.dot(np.dot(w_.T, cov_), w_)[0, 0]
+        if np.isnan(cVar):
+            cVar = 1
         return cVar
 
     def get_quasi_diag(self, link):
@@ -127,13 +131,18 @@ class HRP:
         return
 
     def get_weight(self, df):
+        df = df + 1e-04
+        names = df.columns.to_list()
+        scaler = MinMaxScaler()
+        df[names] = scaler.fit_transform(df)
         x = df
         cov, corr = x.cov(), x.corr()
-
+        corr = corr.fillna(0)
+        for i in range(0, len(names)):
+            corr.iloc[i, i] = 1.0
         # cluster
         dist = self.correl_dist(corr)
         link = sch.linkage(dist, self.cluster_method)
-
         # weighting
         self.alloc_weight(link, cov)
         return self.weight_dict
