@@ -20,15 +20,14 @@ class Window:
         for key in data:
             assets = self.config['assets'] * self.weight_dict[key]
             symbol = data[key]['symbol']
-            df_dailyProfit = data[key]['dailyProfit']
             commodity_type = commodity[symbol]['type']
             price_per_point = commodity[symbol]['pricePerPoint']
-            exchange = commodity[symbol]['exchange']
+            df_dailyProfit = data[key]['dailyProfit']
             df_price = commodity[symbol]['priceData']
             buy_date = df_dailyProfit.iloc[0].date
             lastest_K = self._get_lastest_K(buy_date, df_price)
 
-            if commodity_type == 'Future':
+            if commodity_type == 'Future' or self.model.model_name == 'EqualRisk':
                 # (資金 * 風險比率) / (ATR * 大點金額)
                 # risk 0.7%
                 volatility = df_dailyProfit.iloc[0].volatility
@@ -51,8 +50,8 @@ class Window:
 
             profit_to_MDD = profit / MDD
 
-            result_data[key] = [t2_start_datetime, t2_end_datetime, profit, MDD, profit_to_MDD, self.weight_dict[key]]
-        df_result = pd.DataFrame(data=result_data, index=['Start Date', 'End Date', 'Profit', 'MDD', 'Profit / MDD', 'Weight']).T
+            result_data[key] = [t2_start_datetime, t2_end_datetime, profit, MDD, profit_to_MDD, self.weight_dict[key], symbol]
+        df_result = pd.DataFrame(data=result_data, index=['Start Date', 'End Date', 'Profit', 'MDD', 'Profit / MDD', 'Weight', 'Symbol']).T
         return df_result
 
     def t1_play(self, t1_data, t1_start_datetime, t1_end_datetime):
@@ -66,12 +65,13 @@ class Window:
         for name in selected_investments.keys():
             investment = selected_investments[name]
             symbol = investment['symbol']
+            pricePerPoint =  float(self.config['commodity'][symbol]['pricePerPoint'])
             df = investment['dailyProfit']
             df.index = df.date
             df = df.drop(columns=['volatility', 'date'])
             df = df.reindex(idx, fill_value=0)
+            df['return'] = df['return'] / pricePerPoint
             df = df.rename(columns={'return': name})
-            df = df / self.config['commodity'][symbol]['pricePerPoint']
             data.append(df)
         data = pd.concat(data, axis=1)
 

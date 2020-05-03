@@ -8,6 +8,7 @@ class Selector:
         self.basis = basis
 
     def select(self, data, commodity, assets, t1_start_datetime, t1_end_datetime):
+        # print(t1_start_datetime)
         if self.number == 'All':
             selected_investments = list(data.keys())
         else:
@@ -28,7 +29,6 @@ class Selector:
             df_dailyProfit = data[key]['dailyProfit']
             commodity_type = commodity[symbol]['type']
             price_per_point = commodity[symbol]['pricePerPoint']
-            exchange = commodity[symbol]['exchange']
             df_price = commodity[symbol]['priceData']
             buy_date = df_dailyProfit.iloc[0].date
             lastest_K = self._get_lastest_K(buy_date, df_price)

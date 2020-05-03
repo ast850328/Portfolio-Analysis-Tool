@@ -36,7 +36,6 @@ class SlidingWindow:
         CAGR = pow(final_assets/original_assets, 1.0/years) - 1
         MDD = MDD / original_assets
         MAR = CAGR / MDD
-        print(df)
         result = {
             'profit': profit,
             'profit_to_MDD': profit_to_MDD,
@@ -62,7 +61,6 @@ class SlidingWindow:
             t2_end_datetime = t2_start_datetime + np.timedelta64(t2, 'M')
             if t2_end_datetime > self.config['end_datetime']:
                 break
-
             # split t1_data
             t1_data = {}
             for name in self.investments:
