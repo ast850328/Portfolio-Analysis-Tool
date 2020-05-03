@@ -3,6 +3,8 @@ env/
 stocks/
 symbols/
 dailyProfit/
+result/
+.vscode/
 template.ui
 test.py
 .DS_Store
