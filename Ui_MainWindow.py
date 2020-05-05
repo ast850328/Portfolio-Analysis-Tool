@@ -503,7 +503,7 @@ class Ui_MainWindow(object):
         item = self.result_table.horizontalHeaderItem(4)
         item.setText(_translate("MainWindow", "Profit / MDD"))
         item = self.result_table.horizontalHeaderItem(5)
-        item.setText(_translate("MainWindow", "CAGR"))
+        item.setText(_translate("MainWindow", "AR"))
         item = self.result_table.horizontalHeaderItem(6)
         item.setText(_translate("MainWindow", "MAR"))
         __sortingEnabled = self.result_table.isSortingEnabled()
@@ -537,7 +537,7 @@ class Ui_MainWindow(object):
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Done.</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best Profit(t1, t2): (5, 35)</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best Profit / MDD(t1, t2): (5, 30)</span></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best CAGR(t1, t2): (5, 35)</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best AR(t1, t2): (5, 35)</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-family:\'.AppleSystemUIFont\';\">Best MAR(t1, t2): (6, 30)</span></p></body></html>"))
         self.save_config_button.setText(_translate("MainWindow", "Save Config"))
         self.plot_result_button.setText(_translate("MainWindow", "Plot Result"))
@@ -564,7 +564,7 @@ class Ui_MainWindow(object):
         self.selection_label.setText(_translate("MainWindow", "Selection"))
         self.basis_box.setItemText(0, _translate("MainWindow", "Profit"))
         self.basis_box.setItemText(1, _translate("MainWindow", "Profit / MDD"))
-        self.basis_box.setItemText(2, _translate("MainWindow", "CAGR"))
+        self.basis_box.setItemText(2, _translate("MainWindow", "AR"))
         self.basis_box.setItemText(3, _translate("MainWindow", "MAR"))
         self.ranking_box.setItemText(0, _translate("MainWindow", "All"))
         self.config_button.setText(_translate("MainWindow", "Congfig"))

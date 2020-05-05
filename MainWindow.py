@@ -215,8 +215,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # sliding_window = SlidingWindow(df, assets, selector, model)
         # for i in range(t1_start, t1_end+1, 1):
         #     for j in range(t2_start, t2_end+1, 1):
-        #         total_equity, max_MDD, CAGR, MAR, data = sliding_window.play(i, j)
-        #         print(total_equity, max_MDD, CAGR, MAR)
+        #         total_equity, max_MDD, AR, MAR, data = sliding_window.play(i, j)
+        #         print(total_equity, max_MDD, AR, MAR)
         #         row_position = self.result_table.rowCount()
         #         self.result_table.insertRow(row_position)
         #         self.result_table.setItem(row_position , 0, QTableWidgetItem(str(i)))
@@ -224,7 +224,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         #         self.result_table.setItem(row_position , 2, QTableWidgetItem(str(total_equity)))
         #         self.result_table.setItem(row_position , 3, QTableWidgetItem(str(max_MDD)))
         #         self.result_table.setItem(row_position , 4, QTableWidgetItem(str(total_equity/max_MDD)))
-        #         self.result_table.setItem(row_position , 5, QTableWidgetItem(str(CAGR)))
+        #         self.result_table.setItem(row_position , 5, QTableWidgetItem(str(AR)))
         #         self.result_table.setItem(row_position , 6, QTableWidgetItem(str(MAR)))
         #         self.result_table.scrollToBottom()
         #         print('==============================')

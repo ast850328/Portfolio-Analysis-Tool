@@ -22,7 +22,7 @@ class Selector:
         return selected_investments
 
     def _cal_window_performance(self, data, commodity, assets, days):
-        # Equity, Equity/MDD, MAR, CAGR
+        # Equity, Equity/MDD, MAR, AR
         result_data = {}
         for key in data:
             symbol = data[key]['symbol']
@@ -60,12 +60,12 @@ class Selector:
             final_assets = profit + original_assets
             years = days / 365.0
 
-            CAGR = pow(final_assets/original_assets, 1.0/years) - 1
+            AR = pow(final_assets/original_assets, 1.0/years) - 1
             MDD = MDD / original_assets
-            MAR = CAGR / MDD
+            MAR = AR / MDD
 
-            result_data[key] = [profit, profit_to_MDD, CAGR, MAR]
-        df_result = pd.DataFrame(data=result_data, index=['Profit', 'Profit / MDD', 'CAGR', 'MAR']).T
+            result_data[key] = [profit, profit_to_MDD, AR, MAR]
+        df_result = pd.DataFrame(data=result_data, index=['Profit', 'Profit / MDD', 'AR', 'MAR']).T
         return df_result
 
     def _get_lastest_K(self, date, df):

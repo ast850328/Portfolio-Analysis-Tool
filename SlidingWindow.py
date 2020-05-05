@@ -33,14 +33,14 @@ class SlidingWindow:
         days = (self.config['end_datetime'] - self.config['start_datetime']).astype('timedelta64[D]') / np.timedelta64(1, 'D')
         years = days / 365.0
 
-        CAGR = pow(final_assets/original_assets, 1.0/years) - 1
+        AR = pow(final_assets/original_assets, 1.0/years) - 1
         MDD = MDD / original_assets
-        MAR = CAGR / MDD
+        MAR = AR / MDD
         result = {
             'profit': profit,
             'profit_to_MDD': profit_to_MDD,
             'MDD': MDD,
-            'CAGR': CAGR,
+            'AR': AR,
             'MAR': MAR
         }
 
