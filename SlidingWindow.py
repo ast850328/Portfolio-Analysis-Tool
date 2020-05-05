@@ -4,22 +4,11 @@ from Window import Window
 class SlidingWindow:
 
     def __init__(self, config, investments, selector, model):
-        # config = {
-        #     assets: 1000000000,
-        #     commodity: {
-        #         'commodity_name': { symbol, type, pricePerPoint, exchange },
-        #     }
-        # }
         self.config = config
-        # investments = {
-        #     'investment_name': {
-        #         'symbol': 'TX',
-        #         'dailyProfit': df_daily
-        #     }
-        # }
         self.investments = investments
         self.selector = selector
         self.model = model
+        self.df_windows = None
 
 
     def _cal_slidingWindow_performance(self, df):
@@ -50,7 +39,7 @@ class SlidingWindow:
 
         # current_datetime index
         # first month testing
-        current_datetime = self.config['start_datetime'] + np.timedelta64(1, 'M')
+        current_datetime = self.config['start_datetime'] + np.timedelta64(self.config['ignore_month'], 'M')
         window = Window(self.config, self.selector, self.model)
         df_windows = pd.DataFrame(columns=['Start Date', 'End Date', 'Profit', 'MDD', 'Profit / MDD', 'Weight'])
         i = 0
@@ -88,5 +77,6 @@ class SlidingWindow:
             current_datetime = current_datetime + np.timedelta64(t2, 'M')
 
         print(df_windows)
+        self.df_windows = df_windows
         result = self._cal_slidingWindow_performance(df_windows)
         return result
