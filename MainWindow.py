@@ -3,9 +3,9 @@ from functools import reduce
 from os import listdir
 from os.path import isfile, join
 
-from CLA import CLA
-from HRP import HRP
-from Optimal_F import Optimal_F
+from model.CLA import CLA
+from model.HRP import HRP
+from model.OptimalF import OptimalF
 from Selector import Selector
 from SlidingWindow import SlidingWindow
 
@@ -28,7 +28,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.result_table.setRowCount(0)
         self.result_textBrowser.clear()
         self.assets_text.clear()
-        self.rolling_month_text.clear()
+        self.start_year_text.clear()
+        self.start_month_text.clear()
+        self.end_year_text.clear()
+        self.end_month_text.clear()
+        self.ignore_month_text.clear()
         self.ranking_box.clear()
         self.ranking_box.addItems(['All'])
         self.t1_start_text.clear()
@@ -40,7 +44,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # import data button
         # self.import_data_button.clicked.connect(self.get_file)
         self.assets_text.installEventFilter(self)
-        self.rolling_checkBox.stateChanged.connect(self.set_rolling_months)
+        # self.rolling_checkBox.stateChanged.connect(self.set_rolling_months)
         self.import_investments_button.clicked.connect(self.import_investments)
         self.ranking_box.currentTextChanged.connect(self.set_basis_box)
         self.config_button.clicked.connect(self.set_config)
@@ -72,11 +76,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         dollarText = '{:,}'.format(int(text))
         return dollarText
 
-    def set_rolling_months(self):
-        if self.rolling_checkBox.checkState() == QtCore.Qt.Checked:
-            self.rolling_month_text.setReadOnly(False)
-        else:
-            self.rolling_month_text.setReadOnly(True)
+    # def set_rolling_months(self):
+    #     if self.rolling_checkBox.checkState() == QtCore.Qt.Checked:
+    #         self.rolling_month_text.setReadOnly(False)
+    #     else:
+    #         self.rolling_month_text.setReadOnly(True)
 
     def import_investments(self):
         files_path = self.get_files_path()
@@ -234,8 +238,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         data = {}
 
         data['assets'] = int(self.assets_text.text().replace(',', ''))
-        data['rolling'] = self.rolling_checkBox.isChecked()
-        data['rolling_month'] = self.rolling_month_text.text()
+        # data['rolling'] = self.rolling_checkBox.isChecked()
+        # data['rolling_month'] = self.rolling_month_text.text()
 
         data['ranking'] = self.ranking_box.currentText()
         data['basis'] = self.basis_box.currentText()
