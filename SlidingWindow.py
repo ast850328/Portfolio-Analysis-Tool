@@ -59,6 +59,8 @@ class SlidingWindow:
                 }
                 df = self.investments[name]['dailyProfit']
                 t1_data[name]['dailyProfit'] = df[(df.date >= t1_start_datetime) & (df.date < t1_end_datetime)]
+                if t1_data[name]['dailyProfit'] == None:
+                    del t1_data[name]
 
             selected_investments = window.t1_play(t1_data, t1_start_datetime, t1_end_datetime)
 
