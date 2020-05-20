@@ -131,6 +131,8 @@ class HRP:
         return
 
     def get_weight(self, df):
+        # 有些績效都為 0 （表示那陣子都沒賺錢）
+        # 先強迫都加一個極小數，並用 MinMaxScaler() 去縮放資料
         df = df + 1e-04
         names = df.columns.to_list()
         scaler = MinMaxScaler()
