@@ -8,7 +8,7 @@ result/
 template.ui
 test.py
 .DS_Store
-configWindow.ui
+configDialog.ui
 mainWindow.ui
 commodity.csv
 fileTesting.py
