@@ -16,6 +16,45 @@ from Ui_ConfigDialog import Ui_ConfigDialog
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QWidget, QTableWidgetItem
 
+class WindowThread(QtCore.QThread):
+    
+    def __init__(self, sliding_window, t1_start, t1_end, t2_start, t2_end):
+        QtCore.QThread.__init__(self)
+        self.sliding_window = sliding_window
+        self.t1_start = t1_start
+        self.t1_end = t1_end
+        self.t2_start = t2_start
+        self.t2_end = t2_end
+    
+    result_table_signal = QtCore.pyqtSignal(dict)
+    result_testBrowser_signal = QtCore.pyqtSignal(str)
+    destroy_signal = QtCore.pyqtSignal()     
+
+    def run(self):
+        self.result_testBrowser_signal.emit('Start running sliding window...') 
+        t1_start = self.t1_start
+        t1_end = self.t1_end
+        t2_start = self.t2_start
+        t2_end = self.t2_end
+        sliding_window = self.sliding_window
+        for i in range(t1_start, t1_end+1):
+            for j in range(t2_start, t2_end+1):
+                self.result_testBrowser_signal.emit('({0}, {1})'.format(i, j))
+                result, df_windows = sliding_window.play(i, j)
+                print(result)
+                data = {
+                    "t1": i,
+                    "t2": j,
+                    "profit": result['profit'],
+                    "profit_to_MDD": result['profit_to_MDD'],
+                    "MDD": result['MDD'],
+                    "AR": result['AR'],
+                    "MAR": result['MAR'],
+                }
+                self.result_table_signal.emit(data) 
+        self.result_testBrowser_signal.emit('Done')
+        self.destroy_signal.emit()
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
@@ -25,6 +64,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.bind_init_event()
         self.investments_file_path = None
         self.model_config = None
+        self.windowThread = None
 
     def clear_ui(self):
         self.investments_table.setRowCount(0)
@@ -186,37 +226,20 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         model = self.generate_model(data['model_name'], model_config)
 
         print(investments)
-        print(commodity)
         print(config_portfolio)
 
-        # self.result_table.setRowCount(0)
-        # self.result_textBrowser.append('')
-        # self.result_textBrowser.append('Running...')
-        # t1_start = int(data['t1_start'])
-        # t1_end = int(data['t1_end'])
-        # t2_start = int(data['t2_start'])
-        # t2_end = int(data['t2_end'])
-        # assets = int(data['assets'])
-        # stocks_name = data['stocks_name']
-        # df = self.df_stocks[['Date'] + stocks_name]
-
-        # sliding_window = SlidingWindow(df, assets, selector, model)
-        # for i in range(t1_start, t1_end+1, 1):
-        #     for j in range(t2_start, t2_end+1, 1):
-        #         total_equity, max_MDD, AR, MAR, data = sliding_window.play(i, j)
-        #         print(total_equity, max_MDD, AR, MAR)
-        #         row_position = self.result_table.rowCount()
-        #         self.result_table.insertRow(row_position)
-        #         self.result_table.setItem(row_position , 0, QTableWidgetItem(str(i)))
-        #         self.result_table.setItem(row_position , 1, QTableWidgetItem(str(j)))
-        #         self.result_table.setItem(row_position , 2, QTableWidgetItem(str(total_equity)))
-        #         self.result_table.setItem(row_position , 3, QTableWidgetItem(str(max_MDD)))
-        #         self.result_table.setItem(row_position , 4, QTableWidgetItem(str(total_equity/max_MDD)))
-        #         self.result_table.setItem(row_position , 5, QTableWidgetItem(str(AR)))
-        #         self.result_table.setItem(row_position , 6, QTableWidgetItem(str(MAR)))
-        #         self.result_table.scrollToBottom()
-        #         print('==============================')
-        # self.result_textBrowser.append('Done.')
+        self.result_table.setRowCount(0)
+        t1_start = int(data['t1_start'])
+        t1_end = int(data['t1_end'])
+        t2_start = int(data['t2_start'])
+        t2_end = int(data['t2_end'])
+        sliding_window = SlidingWindow(config_portfolio, investments, selector, model)
+        self.windowThread = WindowThread(sliding_window, t1_start, t1_end, t2_start, t2_end)
+        # self.windowThread = WindowThread()
+        self.windowThread.result_table_signal.connect(self.set_result_table)
+        self.windowThread.result_testBrowser_signal.connect(self.set_result_textBrowser)
+        self.windowThread.destroy_signal.connect(self.destroy_windowThread)
+        self.windowThread.start()
 
     def get_input_data(self):
         data = {}
@@ -224,11 +247,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         data['assets'] = int(self.assets_text.text().replace(',', ''))
         data['ignore_month'] = self.ignore_month_text.text()
         data['start_year'] = self.start_year_text.text()
-        data['start_month'] = self.start_month_text.text()
+        data['start_month'] = self.start_month_text.text().zfill(2)
         data['end_year'] = self.end_year_text.text()
-        data['end_month'] = self.end_month_text.text()
+        data['end_month'] = self.end_month_text.text().zfill(2)
 
-        data['ranking'] = self.ranking_box.currentText()
+        data['ranking'] = int(self.ranking_box.currentText())
         data['basis'] = self.basis_box.currentText()
 
         data['model_name'] = self.model_box.currentText()
@@ -237,6 +260,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         data['t1_end'] = self.t1_end_text.text()
         data['t2_start'] = self.t2_start_text.text()
         data['t2_end'] = self.t2_end_text.text()
+        print(data)
 
         return data
 
@@ -295,3 +319,22 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             }
         return investments, commodity
 
+    @QtCore.pyqtSlot(dict)
+    def set_result_table(self, data):
+        row_position = self.result_table.rowCount()
+        self.result_table.insertRow(row_position)
+        self.result_table.setItem(row_position , 0, QTableWidgetItem(str(data['t1'])))
+        self.result_table.setItem(row_position , 1, QTableWidgetItem(str(data['t2'])))
+        self.result_table.setItem(row_position , 2, QTableWidgetItem(str(data['profit'])))
+        self.result_table.setItem(row_position , 3, QTableWidgetItem(str(data['MDD'])))
+        self.result_table.setItem(row_position , 4, QTableWidgetItem(str(data['profit_to_MDD'])))
+        self.result_table.setItem(row_position , 5, QTableWidgetItem(str(data['AR'])))
+        self.result_table.setItem(row_position , 6, QTableWidgetItem(str(data['MAR'])))
+
+    @QtCore.pyqtSlot(str)
+    def set_result_textBrowser(self, text):
+        self.result_textBrowser.append(text)
+    
+    @QtCore.pyqtSlot()
+    def destroy_windowThread(self):
+        self.windowThread = None
