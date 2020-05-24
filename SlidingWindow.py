@@ -81,4 +81,4 @@ class SlidingWindow:
         print(df_windows)
         self.df_windows = df_windows
         result = self._cal_slidingWindow_performance(df_windows)
-        return result
+        return result, df_windows
