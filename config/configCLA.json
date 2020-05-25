@@ -1,0 +1,18 @@
+{
+	"assets": "100,000,000",
+	"ignore_months": "6",
+	"start_year": "2000",
+	"start_month": "1",
+	"end_year": "2019",
+	"end_month": "12",
+	"t1_start": "5",
+	"t1_end": "40",
+	"t2_start": "1",
+	"t2_end": "40",
+	"model_name": "CLA",
+	"model_config": {
+		"risk": 0.007
+	},
+	"ranking": "5",
+	"basis": "Profit"
+}

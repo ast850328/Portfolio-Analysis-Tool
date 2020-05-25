@@ -1,4 +1,5 @@
 import sys
+import json
 import numpy as np
 import pandas as pd
 from os import listdir
@@ -17,7 +18,7 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QFileDialog, QWidget, QTableWidgetItem
 
 class WindowThread(QtCore.QThread):
-    
+
     def __init__(self, sliding_window, t1_start, t1_end, t2_start, t2_end):
         QtCore.QThread.__init__(self)
         self.sliding_window = sliding_window
@@ -25,13 +26,13 @@ class WindowThread(QtCore.QThread):
         self.t1_end = t1_end
         self.t2_start = t2_start
         self.t2_end = t2_end
-    
+
     result_table_signal = QtCore.pyqtSignal(dict)
     result_testBrowser_signal = QtCore.pyqtSignal(str)
-    destroy_signal = QtCore.pyqtSignal()     
+    destroy_signal = QtCore.pyqtSignal()
 
     def run(self):
-        self.result_testBrowser_signal.emit('Start running sliding window...') 
+        self.result_testBrowser_signal.emit('Start running sliding window...')
         t1_start = self.t1_start
         t1_end = self.t1_end
         t2_start = self.t2_start
@@ -51,7 +52,7 @@ class WindowThread(QtCore.QThread):
                     "AR": result['AR'],
                     "MAR": result['MAR'],
                 }
-                self.result_table_signal.emit(data) 
+                self.result_table_signal.emit(data)
         self.result_testBrowser_signal.emit('Done')
         self.destroy_signal.emit()
 
@@ -85,9 +86,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def bind_init_event(self):
         self.assets_text.installEventFilter(self)
-        self.import_investments_button.clicked.connect(self.import_investments)
+        self.action_import_investments.triggered.connect(self.import_investments)
+        self.action_import_config.triggered.connect(self.import_config)
+        # self.action_import_result.triggered.connect(self.import_result)
+        # self.action_save_config.triggered.connect(self.import_result)
+        # self.action_save_result.triggered.connect(self.import_result)
+        # self.action_plot_result.triggered.connect(self.import_result)
+        # self.action_plot_window.triggered.connect(self.import_result)
         self.ranking_box.currentTextChanged.connect(self.set_basis_box)
-        self.config_button.clicked.connect(self.set_config)
+        self.config_button.clicked.connect(self.set_model_config)
         self.clear_button.clicked.connect(self.clear_ui)
         self.play_button.clicked.connect(self.play)
 
@@ -177,6 +184,35 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         files = [f[:-4] for f in listdir(path) if isfile(join(path, f)) and f[-3:] == 'csv']
         return files
 
+    def import_config(self):
+        file_path = self.get_files_path()[0]
+        with open(file_path) as json_file:
+            data = json.load(json_file)
+            print(data)
+            self.set_config(data)
+
+    def set_config(self, data):
+        self.assets_text.setText(data['assets'])
+        self.ignore_month_text.setText(data['ignore_months'])
+        self.start_year_text.setText(data['start_year'])
+        self.start_month_text.setText(data['start_month'])
+        self.end_year_text.setText(data['end_year'])
+        self.end_month_text.setText(data['end_month'])
+        self.t1_start_text.setText(data['t1_start'])
+        self.t1_end_text.setText(data['t1_end'])
+        self.t2_start_text.setText(data['t2_start'])
+        self.t2_end_text.setText(data['t2_end'])
+        index = self.model_box.findText(data['model_name'], QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.model_box.setCurrentIndex(index)
+        index = self.ranking_box.findText(data['ranking'], QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.ranking_box.setCurrentIndex(index)
+        index = self.basis_box.findText(data['basis'], QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.basis_box.setCurrentIndex(index)
+        self.model_config = data['model_config']
+
     def set_ranking_box(self, number):
         self.ranking_box.clear()
         items = [str(x) for x in range(1, number)]
@@ -190,7 +226,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         else:
             self.basis_box.setEnabled(True)
 
-    def set_config(self):
+    def set_model_config(self):
         model_name = self.model_box.currentText()
 
         dialog = QtWidgets.QDialog()
@@ -334,7 +370,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @QtCore.pyqtSlot(str)
     def set_result_textBrowser(self, text):
         self.result_textBrowser.append(text)
-    
+
     @QtCore.pyqtSlot()
     def destroy_windowThread(self):
         self.windowThread = None
