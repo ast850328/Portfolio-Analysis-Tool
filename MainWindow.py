@@ -30,13 +30,17 @@ class WindowThread(QtCore.QThread):
     result_table_signal = QtCore.pyqtSignal(dict)
     result_testBrowser_signal = QtCore.pyqtSignal(str)
     destroy_signal = QtCore.pyqtSignal()
+    progressBar_signal = QtCore.pyqtSignal(int)
 
     def run(self):
         self.result_testBrowser_signal.emit('Start running sliding window...')
+        self.progressBar_signal.emit(0)
         t1_start = self.t1_start
         t1_end = self.t1_end
         t2_start = self.t2_start
         t2_end = self.t2_end
+        total = (t1_end-t1_start+1) * (t2_end-t2_start+1)
+        count = 0
         sliding_window = self.sliding_window
         for i in range(t1_start, t1_end+1):
             for j in range(t2_start, t2_end+1):
@@ -52,8 +56,16 @@ class WindowThread(QtCore.QThread):
                     "AR": result['AR'],
                     "MAR": result['MAR'],
                 }
+                result_string = "Profit: {0}, MDD: {1}, Profit / MDD: {2}, AR: {3}, MAR: {4}".format(
+                    result['profit'], result['MDD'], result['profit_to_MDD'], result['AR'], result['MAR']
+                )
+                self.result_testBrowser_signal.emit(result_string)
+                self.result_testBrowser_signal.emit("====================================================")
                 self.result_table_signal.emit(data)
+                count += 1
+                self.progressBar_signal.emit(int(count * (100 / total)))
         self.result_testBrowser_signal.emit('Done')
+        self.progressBar_signal.emit(100)
         self.destroy_signal.emit()
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -120,8 +132,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def import_investments(self):
         files_path = self.get_files_path()
-        self.investments_file_path = files_path
         if files_path != None:
+            self.investments_file_path = files_path
             filenames = [path[path.rfind('/')+1: -4] for path in files_path]
             self.set_investments_table(filenames)
             self.set_ranking_box(len(filenames))
@@ -185,11 +197,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return files
 
     def import_config(self):
-        file_path = self.get_files_path()[0]
-        with open(file_path) as json_file:
-            data = json.load(json_file)
-            print(data)
-            self.set_config(data)
+        file_path = self.get_files_path()
+        if file_path != None:
+            file_path = file_path[0]
+            with open(file_path) as json_file:
+                data = json.load(json_file)
+                print(data)
+                self.set_config(data)
 
     def set_config(self, data):
         self.assets_text.setText(data['assets'])
@@ -275,6 +289,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.windowThread.result_table_signal.connect(self.set_result_table)
         self.windowThread.result_testBrowser_signal.connect(self.set_result_textBrowser)
         self.windowThread.destroy_signal.connect(self.destroy_windowThread)
+        self.windowThread.progressBar_signal.connect(self.set_progressBar)
         self.windowThread.start()
 
     def get_input_data(self):
@@ -287,7 +302,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         data['end_year'] = self.end_year_text.text()
         data['end_month'] = self.end_month_text.text().zfill(2)
 
-        data['ranking'] = int(self.ranking_box.currentText())
+        data['ranking'] = self.ranking_box.currentText()
         data['basis'] = self.basis_box.currentText()
 
         data['model_name'] = self.model_box.currentText()
@@ -374,3 +389,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @QtCore.pyqtSlot()
     def destroy_windowThread(self):
         self.windowThread = None
+
+    @QtCore.pyqtSlot(int)
+    def set_progressBar(self, value):
+        self.progress_bar.setValue(value)
