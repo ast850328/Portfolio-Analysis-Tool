@@ -8,13 +8,15 @@ class Selector:
         self.basis = basis
 
     def select(self, data, commodity, assets, t1_start_datetime, t1_end_datetime):
-        # print(t1_start_datetime)
+        # 若是全選
         if self.number == 'All':
             selected_names = list(data.keys())
         else:
             self.number = int(self.number)
             days = (t1_end_datetime - t1_start_datetime).astype('timedelta64[D]') / np.timedelta64(1, 'D')
+            # 計算績效
             df_result = self._cal_window_performance(data, commodity, assets, days)
+            # 取前幾名
             df_result = df_result.nlargest(self.number, self.basis)
             selected_names = df_result.index.tolist()
         selected_investments = {}
@@ -34,9 +36,8 @@ class Selector:
             buy_date = df_dailyProfit.iloc[0].date
             lastest_K = self._get_lastest_K(buy_date, df_price)
 
+            # 若是期貨，則使用風險平價公式
             if commodity_type == 'Future':
-                # (資金 * 風險比率) / (ATR * 大點金額)
-                # risk 0.7%
                 volatility = df_dailyProfit.iloc[0].volatility
                 units = math.floor((assets * 0.007) / (volatility * price_per_point))
             else:
@@ -61,9 +62,15 @@ class Selector:
             final_assets = profit + original_assets
             years = days / 365.0
 
+            # 若有執行 reinvestment 就是 CAGR
             AR = pow(final_assets/original_assets, 1.0/years) - 1
+
+            # MAR 單利公式 MAR = Profit / years / MDD
+            MAR = profit / years / MDD
+
             MDD = MDD / original_assets
-            MAR = AR / MDD
+            # MAR 複利公式 MAR = CAGR / MDD
+            # MAR = AR / MDD
 
             result_data[key] = [profit, profit_to_MDD, AR, MAR]
         df_result = pd.DataFrame(data=result_data, index=['Profit', 'Profit / MDD', 'AR', 'MAR']).T
