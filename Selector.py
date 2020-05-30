@@ -10,15 +10,16 @@ class Selector:
     def select(self, data, commodity, assets, t1_start_datetime, t1_end_datetime):
         # print(t1_start_datetime)
         if self.number == 'All':
-            selected_investments = list(data.keys())
+            selected_names = list(data.keys())
         else:
+            self.number = int(self.number)
             days = (t1_end_datetime - t1_start_datetime).astype('timedelta64[D]') / np.timedelta64(1, 'D')
             df_result = self._cal_window_performance(data, commodity, assets, days)
             df_result = df_result.nlargest(self.number, self.basis)
             selected_names = df_result.index.tolist()
-            selected_investments = {}
-            for name in selected_names:
-                selected_investments[name] = data[name]
+        selected_investments = {}
+        for name in selected_names:
+            selected_investments[name] = data[name]
         return selected_investments
 
     def _cal_window_performance(self, data, commodity, assets, days):
