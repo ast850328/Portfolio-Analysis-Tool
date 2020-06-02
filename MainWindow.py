@@ -111,7 +111,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.action_import_result.triggered.connect(self.import_result)
         self.action_save_config.triggered.connect(self.save_config)
         self.action_save_result.triggered.connect(self.save_result)
-        # self.action_plot_result.triggered.connect(self.import_result)
+        self.action_plot_result.triggered.connect(self.plot_result)
         # self.action_plot_window.triggered.connect(self.import_result)
         self.ranking_box.currentTextChanged.connect(self.set_basis_box)
         self.config_button.clicked.connect(self.set_model_config)
@@ -279,6 +279,26 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.df_result.to_csv(name, index=False)
         else:
             self.set_result_textBrowser("Canceled.")
+    def plot_result(self):
+        df = self.df_result
+        t1_start = int(df.iloc[0]["t1"])
+        t2_start = int(df.iloc[0]["t2"])
+        t1_end = int(df.iloc[-1]["t1"])
+        t2_end = int(df.iloc[-1]["t2"])
+        titles = ['profit', 'profit_to_MDD', 'AR', 'MAR']
+        df_slidingWindow = pd.DataFrame(columns=range(t1_start, t1_end+1), index=range(t2_start, t2_end+1))
+        for title in titles:
+            for index, row in df.iterrows():
+                df_slidingWindow.loc[int(row["t2"]), int(row["t1"])] = row[title]
+            df_slidingWindow = df_slidingWindow.astype(float)
+            fig, ax = plt.subplots(figsize=(15,10))
+            fig.canvas.set_window_title(title)
+            ax.set_title(title)
+            ax = sns.heatmap(df_slidingWindow, xticklabels=True, yticklabels=True, cmap='gray_r')
+            plt.xlabel('T1')
+            plt.ylabel('T2')
+            plt.show()
+
     def set_ranking_box(self, number):
         self.ranking_box.clear()
         items = [str(x) for x in range(1, number)]
