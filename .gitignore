@@ -8,3 +8,4 @@ test.py
 .DS_Store
 commodity.csv
 fileTesting.py
+config/

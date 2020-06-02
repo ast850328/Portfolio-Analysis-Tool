@@ -1,6 +1,6 @@
 {
 	"assets": "100,000,000",
-	"ignore_months": "6",
+	"ignore_month": "6",
 	"start_year": "2000",
 	"start_month": "1",
 	"end_year": "2019",
