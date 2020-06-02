@@ -110,7 +110,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.action_import_config.triggered.connect(self.import_config)
         self.action_import_result.triggered.connect(self.import_result)
         self.action_save_config.triggered.connect(self.save_config)
-        # self.action_save_result.triggered.connect(self.import_result)
+        self.action_save_result.triggered.connect(self.save_result)
         # self.action_plot_result.triggered.connect(self.import_result)
         # self.action_plot_window.triggered.connect(self.import_result)
         self.ranking_box.currentTextChanged.connect(self.set_basis_box)
@@ -271,6 +271,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 file.write(json.dumps(data))
         else:
             self.set_result_textBrowser("Canceled.")
+
+    def save_result(self):
+        self.set_result_textBrowser("Saving result file....")
+        name = QFileDialog.getSaveFileName(self, 'Save Result File')[0]
+        if name is not None:
+            self.df_result.to_csv(name, index=False)
+        else:
             self.set_result_textBrowser("Canceled.")
     def set_ranking_box(self, number):
         self.ranking_box.clear()
