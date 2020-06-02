@@ -432,3 +432,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.df_result = df
         self.print_result_info()
     
+    def print_result_info(self):
+        df_result = self.df_result
+        titles = ['profit', 'profit_to_MDD', 'MDD', 'AR', 'MAR']
+        for title in titles:
+            index = df_result[title].idxmax()
+            text = "Best {0} ({1}, {2}): {3}".format(
+                title, int(df_result.loc[index]['t1']), int(df_result.loc[index]['t2']),
+                round(df_result.loc[index][title], 2))
+            self.set_result_textBrowser(text)
+            text = "Best {0} [Profit, Profit/MDD, AR, MAR]: {1}, {2}, {3}, {4}".format(
+                    title,
+                    round(df_result.loc[index]['profit'], 2),
+                    round(df_result.loc[index]['profit_to_MDD'], 2), 
+                    round(df_result.loc[index]['AR'], 2),
+                    round(df_result.loc[index]['MAR'], 2))
+            self.set_result_textBrowser(text)
