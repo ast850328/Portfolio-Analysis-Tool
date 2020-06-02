@@ -2,6 +2,9 @@ import sys
 import json
 import numpy as np
 import pandas as pd
+import seaborn as sns
+import matplotlib.axes
+import matplotlib.pyplot as plt
 from os import listdir
 from os.path import isfile, join
 from datetime import datetime
@@ -27,6 +30,7 @@ class WindowThread(QtCore.QThread):
         self.t2_start = t2_start
         self.t2_end = t2_end
 
+    save_df_result_signal = QtCore.pyqtSignal(pd.DataFrame)
     result_table_signal = QtCore.pyqtSignal(dict)
     result_testBrowser_signal = QtCore.pyqtSignal(str)
     destroy_signal = QtCore.pyqtSignal()
@@ -35,6 +39,7 @@ class WindowThread(QtCore.QThread):
     def run(self):
         self.result_testBrowser_signal.emit('Start running sliding window...')
         self.progressBar_signal.emit(0)
+        df_result = pd.DataFrame(columns=["t1", "t2", "profit", "profit_to_MDD", "MDD", "AR", "MAR"])
         t1_start = self.t1_start
         t1_end = self.t1_end
         t2_start = self.t2_start
@@ -56,6 +61,7 @@ class WindowThread(QtCore.QThread):
                     "AR": result['AR'],
                     "MAR": result['MAR'],
                 }
+                df_result = df_result.append(data, ignore_index=True)
                 result_string = "Profit: {0}, MDD: {1}, Profit / MDD: {2}, AR: {3}, MAR: {4}".format(
                     result['profit'], result['MDD'], result['profit_to_MDD'], result['AR'], result['MAR']
                 )
@@ -66,6 +72,7 @@ class WindowThread(QtCore.QThread):
                 self.progressBar_signal.emit(int(count * (100 / total)))
         self.result_testBrowser_signal.emit('Done')
         self.progressBar_signal.emit(100)
+        self.save_df_result_signal.emit(df_result)
         self.destroy_signal.emit()
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -78,6 +85,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.investments_file_path = None
         self.model_config = None
         self.windowThread = None
+        self.df_result = None
 
     def clear_ui(self):
         self.investments_table.setRowCount(0)
@@ -418,3 +426,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     @QtCore.pyqtSlot(int)
     def set_progressBar(self, value):
         self.progress_bar.setValue(value)
+
+    @QtCore.pyqtSlot(pd.DataFrame)
+    def save_df_result(self, df):
+        self.df_result = df
+        self.print_result_info()
+    
