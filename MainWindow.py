@@ -100,7 +100,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.assets_text.installEventFilter(self)
         self.action_import_investments.triggered.connect(self.import_investments)
         self.action_import_config.triggered.connect(self.import_config)
-        # self.action_import_result.triggered.connect(self.import_result)
+        self.action_import_result.triggered.connect(self.import_result)
         # self.action_save_config.triggered.connect(self.import_result)
         # self.action_save_result.triggered.connect(self.import_result)
         # self.action_plot_result.triggered.connect(self.import_result)
@@ -227,6 +227,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.basis_box.setCurrentIndex(index)
         self.model_config = data['model_config']
 
+    def import_result(self):
+        self.set_result_textBrowser("Importing result file....")
+        file_path = self.get_files_path()
+        if file_path != None:
+            file_path = file_path[0]
+            self.df_result = pd.read_csv(file_path)
+            self.set_result_table()
+            self.set_result_textBrowser("Done.")
+            self.print_result_info()
+        else:
+            self.set_result_textBrowser("Canceled.")
+
+    def set_result_table(self):
+        if self.df_result is not None:
+            self.result_table.setRowCount(0)
+            for index, row in self.df_result.iterrows():
+                row_position = self.result_table.rowCount()
+                self.result_table.insertRow(row_position)
+                self.result_table.setItem(row_position , 0, QTableWidgetItem(str(int(row['t1']))))
+                self.result_table.setItem(row_position , 1, QTableWidgetItem(str(int(row['t2']))))
+                self.result_table.setItem(row_position , 2, QTableWidgetItem(str(row['profit'])))
+                self.result_table.setItem(row_position , 3, QTableWidgetItem(str(row['MDD'])))
+                self.result_table.setItem(row_position , 4, QTableWidgetItem(str(row['profit_to_MDD'])))
+                self.result_table.setItem(row_position , 5, QTableWidgetItem(str(row['AR'])))
+                self.result_table.setItem(row_position , 6, QTableWidgetItem(str(row['MAR'])))
     def set_ranking_box(self, number):
         self.ranking_box.clear()
         items = [str(x) for x in range(1, number)]
