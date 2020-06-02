@@ -112,7 +112,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.action_save_config.triggered.connect(self.save_config)
         self.action_save_result.triggered.connect(self.save_result)
         self.action_plot_result.triggered.connect(self.plot_result)
-        # self.action_plot_window.triggered.connect(self.import_result)
+        # self.action_plot_window.triggered.connect(self.plot_test)
         self.ranking_box.currentTextChanged.connect(self.set_basis_box)
         self.config_button.clicked.connect(self.set_model_config)
         self.clear_button.clicked.connect(self.clear_ui)
@@ -205,6 +205,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return files
 
     def import_config(self):
+        self.set_result_textBrowser("Importing config file....")
         file_path = self.get_files_path()
         if file_path != None:
             file_path = file_path[0]
@@ -212,10 +213,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 data = json.load(json_file)
                 print(data)
                 self.set_config(data)
+            self.set_result_textBrowser("Done.")
+        else:
+            self.set_result_textBrowser("Canceled.")   
 
     def set_config(self, data):
         self.assets_text.setText(data['assets'])
-        self.ignore_month_text.setText(data['ignore_months'])
+        self.ignore_month_text.setText(data['ignore_month'])
         self.start_year_text.setText(data['start_year'])
         self.start_month_text.setText(data['start_month'])
         self.end_year_text.setText(data['end_year'])
@@ -332,6 +336,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         investments, commodity = self.get_investments(all_commodity)
 
         data = self.get_input_data()
+        data['assets'] = int(self.assets_text.text().replace(',', ''))
         start_datetime = np.datetime64(data['start_year'] + '-' + data['start_month'])
         end_datetime = np.datetime64(data['end_year'] + '-' + data['end_month'])
         config_portfolio = {
@@ -358,16 +363,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         sliding_window = SlidingWindow(config_portfolio, investments, selector, model)
         self.windowThread = WindowThread(sliding_window, t1_start, t1_end, t2_start, t2_end)
         # self.windowThread = WindowThread()
-        self.windowThread.result_table_signal.connect(self.set_result_table)
+        self.windowThread.result_table_signal.connect(self.insert_result_table)
         self.windowThread.result_testBrowser_signal.connect(self.set_result_textBrowser)
         self.windowThread.destroy_signal.connect(self.destroy_windowThread)
         self.windowThread.progressBar_signal.connect(self.set_progressBar)
+        self.windowThread.save_df_result_signal.connect(self.save_df_result)
+
         self.windowThread.start()
 
     def get_input_data(self):
         data = {}
 
-        data['assets'] = int(self.assets_text.text().replace(',', ''))
+        data['assets'] = self.assets_text.text()
         data['ignore_month'] = self.ignore_month_text.text()
         data['start_year'] = self.start_year_text.text()
         data['start_month'] = self.start_month_text.text().zfill(2)
@@ -443,7 +450,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         return investments, commodity
 
     @QtCore.pyqtSlot(dict)
-    def set_result_table(self, data):
+    def insert_result_table(self, data):
         row_position = self.result_table.rowCount()
         self.result_table.insertRow(row_position)
         self.result_table.setItem(row_position , 0, QTableWidgetItem(str(data['t1'])))
