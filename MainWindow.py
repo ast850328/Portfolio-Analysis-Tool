@@ -109,7 +109,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.action_import_investments.triggered.connect(self.import_investments)
         self.action_import_config.triggered.connect(self.import_config)
         self.action_import_result.triggered.connect(self.import_result)
-        # self.action_save_config.triggered.connect(self.import_result)
+        self.action_save_config.triggered.connect(self.save_config)
         # self.action_save_result.triggered.connect(self.import_result)
         # self.action_plot_result.triggered.connect(self.import_result)
         # self.action_plot_window.triggered.connect(self.import_result)
@@ -260,6 +260,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 self.result_table.setItem(row_position , 4, QTableWidgetItem(str(row['profit_to_MDD'])))
                 self.result_table.setItem(row_position , 5, QTableWidgetItem(str(row['AR'])))
                 self.result_table.setItem(row_position , 6, QTableWidgetItem(str(row['MAR'])))
+
+    def save_config(self):
+        self.set_result_textBrowser("Saving config file....")
+        name = QFileDialog.getSaveFileName(self, 'Save Config File')[0]
+        if name is not None:
+            data = self.get_input_data()
+            data["model_config"] = self.model_config
+            with open(name, 'w') as file:
+                file.write(json.dumps(data))
+        else:
+            self.set_result_textBrowser("Canceled.")
+            self.set_result_textBrowser("Canceled.")
     def set_ranking_box(self, number):
         self.ranking_box.clear()
         items = [str(x) for x in range(1, number)]
